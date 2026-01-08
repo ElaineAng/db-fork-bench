@@ -4,6 +4,7 @@ from psycopg2.extensions import connection as _pgconn
 from dblib.db_api import DBToolSuite
 import dblib.result_collector as rc
 import dblib.util as dbutil
+from typing import Tuple
 
 DOLT_USER = "postgres"
 DOLT_PASSWORD = "password"
@@ -68,14 +69,24 @@ class DoltToolSuite(DBToolSuite):
             # Ignore commit errors (e.g., no changes to commit).
             print(f"Commit failed: {e}")
 
-    def _create_branch_impl(self, branch_name: str, parent_id: str) -> None:
-        # TODO: Implement branch creation.
-        pass
+    def _create_branch_impl(self, branch_name: str, source_branch: str = None) -> None:
+        try:
+            with self.conn.cursor() as cur: # Try to delete the branch first (ignores error if it doesn't exist)
+                cur.execute(f"SELECT dolt_branch('-D', '{branch_name}');")
+        except Exception:
+            pass  # Branch doesn't exist, which is fine
+        # Now create the branch
+        with self.conn.cursor() as cur:
+            cur.execute(f"SELECT dolt_branch('{branch_name}', '{source_branch or 'main'}');")
 
-    def _connect_branch_impl(self, branch_name: str) -> None:
-        # TODO: Implement branch connection.
-        pass
+    def _connect_branch_impl(self, branch_id: str) -> None:
+        with self.conn.cursor() as cur: # Switch to the new branch
+            cur.execute(f"SELECT dolt_checkout('{branch_id}');")
 
-    def _get_current_branch_impl(self) -> tuple[str, str]:
-        # TODO: Implement getting current branch.
-        pass
+    def _get_current_branch_impl(self) -> Tuple[str, str]:
+        with self.conn.cursor() as cur: # Get the currently active branch
+            cur.execute("SELECT active_branch();")
+            row = cur.fetchone()
+            if row:
+                return row[0], row[0]
+        return "main", "main"

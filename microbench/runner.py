@@ -232,6 +232,18 @@ class BenchmarkSuite:
             self.db_tools.get_uri_for_db_setup(),
             self._config.database_setup.sql_dump.sql_dump_path,
         )
+        
+        # For Dolt, commit the schema changes so tables are visible
+        if self._config.backend == tp.Backend.DOLT:
+            try:
+                # Stage all changes (schema creation)
+                self.db_tools.execute_sql("SELECT dolt_add('.');", timed=False)
+                # Commit the schema
+                self.db_tools.execute_sql("SELECT dolt_commit('-m', 'Initial schema setup');", timed=False)
+                print("Committed schema changes to Dolt.")
+            except Exception as e:
+                print(f"Warning: Could not commit schema in Dolt: {e}")
+                # Continue anyway - tables might still be visible
 
     def maybe_branch_and_reconnect(
         self, next_bid, rnd, branch_limit_reached
