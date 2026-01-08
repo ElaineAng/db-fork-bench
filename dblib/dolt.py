@@ -70,13 +70,9 @@ class DoltToolSuite(DBToolSuite):
             print(f"Commit failed: {e}")
 
     def _create_branch_impl(self, branch_name: str, source_branch: str = None) -> None:
-        try:
-            with self.conn.cursor() as cur: # Try to delete the branch first (ignores error if it doesn't exist)
-                cur.execute(f"SELECT dolt_branch('-D', '{branch_name}');")
-        except Exception:
-            pass  # Branch doesn't exist, which is fine
-        # Now create the branch
         with self.conn.cursor() as cur:
+            try: cur.execute(f"SELECT dolt_branch('-D', '{branch_name}');")
+            except: pass  # Branch doesn't exist, which is fine
             cur.execute(f"SELECT dolt_branch('{branch_name}', '{source_branch or 'main'}');")
 
     def _connect_branch_impl(self, branch_id: str) -> None:
@@ -87,6 +83,5 @@ class DoltToolSuite(DBToolSuite):
         with self.conn.cursor() as cur: # Get the currently active branch
             cur.execute("SELECT active_branch();")
             row = cur.fetchone()
-            if row:
-                return row[0], row[0]
-        return "main", "main"
+            return (row[0], row[0]) if row else ("main", "main")
+    
