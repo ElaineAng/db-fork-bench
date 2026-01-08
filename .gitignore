@@ -219,3 +219,10 @@ output/
 
 dolt_data/
 *.db
+
+# macOS
+.DS_Store
+
+# Dolt configuration and data
+.doltcfg/
+dolt_data/
