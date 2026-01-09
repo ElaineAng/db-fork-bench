@@ -2,7 +2,7 @@
 # This configuration runs a mixed workload benchmark on Neon
 
 run_id: "benchmark_neon_001"
-backend: NEON
+backend: DOLT
 
 # Operations to perform in the benchmark
 operations: READ

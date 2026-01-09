@@ -20,11 +20,18 @@ class NeonToolSuite(DBToolSuite):
     """
     A suite of tools for interacting with a Neon database on a shared connection.
     """
-
     @classmethod
     def create_neon_project(cls, project_name: str) -> str:
-        project_dict = {"project": {"pg_version": 17, "name": project_name}}
+        # project_dict = {"project": {"pg_version": 17, "name": project_name}}
         # TODO: Handle project creation failures.
+        org_id = os.environ.get("NEON_ORG_ID")
+        project_dict = {
+            "project": {
+                "pg_version": 17, 
+                "name": project_name, 
+                "org_id": org_id 
+            }
+        }
         return cls._request("POST", "projects", json=project_dict)
 
     @classmethod

@@ -177,24 +177,27 @@ def get_db_size(conn: psycopg2.extensions.connection) -> int:
         Database size in bytes, or 0 if unable to determine
     """
     # Get the current database name
-    db_name_query = "SELECT current_database();"
-    db_name_result = _run_sql_query(conn, db_name_query)
-    db_name = db_name_result[0][0] if db_name_result else None
+    try:
+        db_name_query = "SELECT current_database();"
+        db_name_result = _run_sql_query(conn, db_name_query)
+        db_name = db_name_result[0][0] if db_name_result else None
 
-    _run_sql_query(conn, "SET search_path TO public")
+        _run_sql_query(conn, "SET search_path TO public")
 
-    if not db_name:
-        print("Warning: Could not determine database name, returning 0")
+        if not db_name:
+            print("Warning: Could not determine database name, returning 0")
+            return 0
+
+        # Query the size of the current database using pg_database_size
+        size_query = "SELECT pg_database_size(%s);"
+        size_result = _run_sql_query(conn, size_query, (db_name,))
+
+        if size_result and size_result[0][0] is not None:
+            return int(size_result[0][0])
+    except Exception as e:
+        # If the database (like Dolt) doesn't support this function, just return 0
+        print(f"Warning: Could not get DB size (likely unsupported by backend). Defaulting to 0.")
         return 0
-
-    # Query the size of the current database using pg_database_size
-    size_query = "SELECT pg_database_size(%s);"
-    size_result = _run_sql_query(conn, size_query, (db_name,))
-
-    if size_result and size_result[0][0] is not None:
-        return int(size_result[0][0])
-
-    return 0
 
 
 def get_all_columns(

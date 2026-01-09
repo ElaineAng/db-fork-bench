@@ -209,3 +209,20 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 
+
+config.yaml
+*.db
+
+dolt.log
+figures/*.png
+output/
+
+dolt_data/
+*.db
+
+# macOS
+.DS_Store
+
+# Dolt configuration and data
+.doltcfg/
+dolt_data/
