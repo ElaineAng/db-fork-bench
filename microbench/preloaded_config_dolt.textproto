@@ -1,0 +1,29 @@
+run_id: "dolt_preloaded_db"
+backend: DOLT
+
+operations: READ
+operations: INSERT
+operations: UPDATE
+operations: RANGE_UPDATE
+operations: BRANCH
+
+num_ops: 500
+
+table_name: "customer"
+
+starting_branch: ""
+
+database_setup {
+  db_name: "microbench"
+  cleanup: true
+
+  sql_dump {
+    sql_dump_path: "db_setup/microbench.sql"
+  }
+}
+
+range_update_config {
+  range_size: 100
+}
+
+autocommit: true
