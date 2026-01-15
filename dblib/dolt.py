@@ -69,13 +69,12 @@ class DoltToolSuite(DBToolSuite):
             print(f"Commit failed: {e}")
 
     def _create_branch_impl(self, branch_name: str, parent_id: str) -> None:
-        # TODO: Implement branch creation.
-        pass
+        args = ('-B', branch_name, parent_id) if parent_id else ('-B', branch_name)
+        super().execute_sql(f"SELECT dolt_checkout{args};")
 
     def _connect_branch_impl(self, branch_name: str) -> None:
-        # TODO: Implement branch connection.
-        pass
+        super().execute_sql(f"SELECT dolt_checkout('{branch_name}');")
 
     def _get_current_branch_impl(self) -> tuple[str, str]:
-        # TODO: Implement getting current branch.
-        pass
+        name = super().execute_sql("SELECT active_branch();")[0][0]
+        return name, super().execute_sql("SELECT hashof('HEAD');")[0][0]
