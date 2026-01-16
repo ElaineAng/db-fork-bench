@@ -64,6 +64,7 @@ class BenchmarkSuite:
         config: tp.TaskConfig,
         seed: int = None,
     ):
+        self._neon_project_id = None
         self._db_name = config.database_setup.db_name
         self._config = config
         self._seed = seed  # Optional seed for reproducibility
@@ -162,7 +163,7 @@ class BenchmarkSuite:
             if (
                 self._config.database_setup.cleanup
                 and self._config.backend == tp.Backend.NEON
-                and self._neon_project_id
+                and getattr(self, "_neon_project_id", None)
             ):
                 NeonToolSuite.delete_project(self._neon_project_id)
             raise e
@@ -186,7 +187,7 @@ class BenchmarkSuite:
                     print(f"Error deleting database: {e}")
             if (
                 self._config.backend == tp.Backend.NEON
-                and self._neon_project_id
+                and getattr(self, "_neon_project_id", None)
             ):
                 NeonToolSuite.delete_project(self._neon_project_id)
 
