@@ -81,4 +81,4 @@ class DoltToolSuite(DBToolSuite):
     def _get_current_branch_impl(self) -> tuple[str, str]:
         cmd = f"SELECT active_branch();"
         res = super().execute_sql(cmd)
-        return (res[0][0], 0) if res else None
+        return (res[0][0], 0) if res else None # branch_id not implemented
