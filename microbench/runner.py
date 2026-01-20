@@ -227,6 +227,8 @@ class BenchmarkSuite:
             self.db_tools.get_uri_for_db_setup(),
             self._config.database_setup.sql_dump.sql_dump_path,
         )
+        if self._config.backend == tp.Backend.DOLT:
+            self.db_tools.commit_changes(message="Init")
 
     def maybe_branch_and_reconnect(
         self, next_bid, rnd, branch_limit_reached
