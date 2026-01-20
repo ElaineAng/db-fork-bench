@@ -38,8 +38,6 @@ def load_sql_file(
     cmd = [
         "psql",
         connection_uri,
-        "-f",
-        str(sql_file_path),
         "-v",
         "ON_ERROR_STOP=1",  # Stop on first error
     ]
@@ -53,11 +51,29 @@ def load_sql_file(
         # Use Popen for real-time output streaming
         process = subprocess.Popen(
             cmd,
+            stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
             bufsize=1,  # Line buffered
         )
+
+        try:
+            with sql_file_path.open("r", encoding="utf-8") as sql_file:
+                for line in sql_file:
+                    stripped = line.lstrip()
+                    if stripped.startswith("\\restrict") or stripped.startswith(
+                        "\\unrestrict"
+                    ):
+                        continue
+                    process.stdin.write(line)
+        except BrokenPipeError:
+            # psql already exited (likely due to earlier failure); we'll handle
+            # the error when checking returncode below.
+            pass
+        finally:
+            if process.stdin:
+                process.stdin.close()
 
         # Stream stdout in real-time
         if verbose:

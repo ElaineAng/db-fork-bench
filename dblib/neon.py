@@ -12,6 +12,7 @@ import dblib.result_collector as rc
 
 load_dotenv()
 API_KEY = os.environ.get("NEON_API_KEY_ORG", "")
+ORG_ID = os.environ.get("NEON_ORG_ID", "")
 neon = NeonAPI(api_key=API_KEY)
 NEON_API_BASE_URL = "https://console.neon.tech/api/v2/"
 
@@ -24,6 +25,8 @@ class NeonToolSuite(DBToolSuite):
     @classmethod
     def create_neon_project(cls, project_name: str) -> str:
         project_dict = {"project": {"pg_version": 17, "name": project_name}}
+        if ORG_ID:
+            project_dict["project"]["org_id"] = ORG_ID
         # TODO: Handle project creation failures.
         return cls._request("POST", "projects", json=project_dict)
 
