@@ -57,7 +57,15 @@ class PgsqlToolSuite(DBToolSuite):
         cmd = "SELECT CURRENT_DATABASE();"
         res = super().execute_sql(cmd)
         self.current_branch_name = res[0][0]
+        self.main_branch_name = self.current_branch_name
         self._all_branches = {self.current_branch_name: connection_uri}
+
+        # Create a uri for "postgres" database to have somewhere to switch 
+        # during cleanup to delete all created databases
+        p_uri = dbutil.format_db_uri(
+            PGSQL_USER, PGSQL_PASSWORD, PGSQL_HOST, PGSQL_PORT, "postgres"
+        )
+        self._all_branches["postgres"] = p_uri
 
     def get_uri_for_db_setup(self) -> str:
         """Returns the connection URI for database setup operations (e.g., PGSQL)."""
@@ -67,9 +75,21 @@ class PgsqlToolSuite(DBToolSuite):
         """
         Deletes the database from all branches in the Neon project.
         """
-        cmd = f"DROP DATABASE {db_name}"
         try:
-            super().execute_sql(cmd)
+            # This function gets called with config.db_name in the __exit__
+            # cleanup function, so delete all branches in that case
+            if db_name == self.main_branch_name:
+                self._connect_branch_impl("postgres")
+                for branch, _ in self._all_branches.items():
+                    if branch == "postgres":
+                        continue
+                    cmd = f"DROP DATABASE {branch};"
+                    super().execute_sql(cmd)
+            # Other wise just delete the specfic branch this function was 
+            # called on
+            else:
+                cmd = f"DROP DATABASE {db_name}"
+                super().execute_sql(cmd)
         except Exception as e:
             raise Exception(f"Error deleting database: {e}")
         
@@ -108,6 +128,3 @@ class PgsqlToolSuite(DBToolSuite):
     def _get_current_branch_impl(self) -> tuple[str, str]:
         return (self.current_branch_name, self.current_branch_name) # branch_id not implemented
 
-    def _get_pgsql_branches(self):
-        # TODO implemente
-        pass

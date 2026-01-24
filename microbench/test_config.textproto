@@ -1,7 +1,7 @@
 # Example benchmark task configuration
 # This configuration runs a mixed workload benchmark on Neon
 
-run_id: "benchmark_pgsql_201_tpcc"
+run_id: "benchmark_pgsql_203_tpcc"
 backend: PGSQL
 
 # Operations to perform in the benchmark
