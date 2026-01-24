@@ -108,10 +108,9 @@ class PgsqlToolSuite(DBToolSuite):
     def _connect_branch_impl(self, branch_name: str) -> None:
         uri = self._all_branches[branch_name]
         if not branch_name:
-            all_branches = self._get_pgsql_branches()
-            if branch_name not in all_branches:
+            if branch_name not in self._all_branches:
                 raise ValueError(f"Branch '{branch_name}' does not exist.")
-            branch_id = all_branches[branch_name]
+            branch_id = self._all_branches[branch_name]
         if not uri:
             uri = dbutil.format_db_uri(
                 PGSQL_USER, PGSQL_PASSWORD, PGSQL_HOST, PGSQL_PORT, branch_name
