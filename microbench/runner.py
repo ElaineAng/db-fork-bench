@@ -18,6 +18,8 @@ from util import db_helpers as dbh
 from dblib import result_collector as rc
 from dblib.dolt import DoltToolSuite
 from dblib.neon import NeonToolSuite
+from dblib.pgsql import PgsqlToolSuite
+
 
 
 def OPS_WEIGHT(op_type: tp.OperationType):
@@ -153,6 +155,14 @@ class BenchmarkSuite:
                     self._db_name,
                     self._config.autocommit,
                 )
+            elif self._config.backend == tp.Backend.PGSQL:
+                default_uri = Pgsql.get_default_connection_uri()
+                print(f"Default Dolt connection URI: {default_uri}")
+                self.create_benchmark_database(default_uri)
+                db_tools = DoltToolSuite.init_for_bench(
+                    result_collector, self._db_name, self._config.autocommit
+                )
+                self._root_branch_name = "main"
             else:
                 raise ValueError(f"Unsupported backend: {self._config.backend}")
 
@@ -223,7 +233,7 @@ class BenchmarkSuite:
         # Setup the database and initialize the schema.
         if not self._require_db_setup:
             return
-        # Pass connection URI for psql (supports psql meta-commands)
+        # Pass connection URI for PGSQL (supports PGSQL meta-commands)
         load_sql_file(
             self.db_tools.get_uri_for_db_setup(),
             self._config.database_setup.sql_dump.sql_dump_path,
