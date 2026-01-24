@@ -11,15 +11,15 @@ PSQL_HOST = "localhost"
 PSQL_PORT = 5432
 
 
-class DoltToolSuite(DBToolSuite):
+class PgsqlToolSuite(DBToolSuite):
     """
-    A suite of tools for interacting with a Dolt database on a shared connection.
+    A suite of tools for interacting with a PSQL database on a shared connection.
     """
 
     @classmethod
     def get_default_connection_uri(cls) -> str:
         return dbutil.format_db_uri(
-            DOLT_USER, DOLT_PASSWORD, DOLT_HOST, DOLT_PORT, "postgres"
+            PSQL_USER, PSQL_PASSWORD, PSQL_HOST, PSQL_PORT, "postgres"
         )
 
     @classmethod
@@ -30,7 +30,7 @@ class DoltToolSuite(DBToolSuite):
         autocommit: bool,
     ):
         uri = dbutil.format_db_uri(
-            DOLT_USER, DOLT_PASSWORD, DOLT_HOST, DOLT_PORT, db_name
+            PSQL_USER, PSQL_PASSWORD, PSQL_HOST, PSQL_PORT, db_name
         )
 
         conn = psycopg2.connect(uri)
