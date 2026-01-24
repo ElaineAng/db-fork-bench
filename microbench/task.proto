@@ -4,8 +4,9 @@ package microbench;
 
 // All supported database backends
 enum Backend {
-    NEON = 0;
-    DOLT = 1;
+    NEON  = 0;
+    DOLT  = 1;
+    PGSQL = 2;
 }
 
 // Type of benchmark operation to perform

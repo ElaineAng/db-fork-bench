@@ -1,8 +1,8 @@
 # Example benchmark task configuration
 # This configuration runs a mixed workload benchmark on Neon
 
-run_id: "benchmark_dolt_005_tpcc"
-backend: DOLT
+run_id: "benchmark_pgsql_201_tpcc"
+backend: PGSQL
 
 # Operations to perform in the benchmark
 operations: READ

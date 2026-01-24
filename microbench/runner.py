@@ -156,8 +156,8 @@ class BenchmarkSuite:
                     self._config.autocommit,
                 )
             elif self._config.backend == tp.Backend.PGSQL:
-                default_uri = Pgsql.get_default_connection_uri()
-                print(f"Default Dolt connection URI: {default_uri}")
+                default_uri = PgsqlToolSuite.get_default_connection_uri()
+                print(f"Default PGSQL connection URI: {default_uri}")
                 self.create_benchmark_database(default_uri)
                 db_tools = DoltToolSuite.init_for_bench(
                     result_collector, self._db_name, self._config.autocommit
