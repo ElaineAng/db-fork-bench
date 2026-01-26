@@ -23,8 +23,14 @@ class NeonToolSuite(DBToolSuite):
 
     @classmethod
     def create_neon_project(cls, project_name: str) -> str:
-        project_dict = {"project": {"pg_version": 17, "name": project_name}}
-        # TODO: Handle project creation failures.
+        org_id = os.environ.get("NEON_ORG_ID", "")
+        project_dict = {
+            "project": {
+                "pg_version": 17,
+                "name": project_name,
+                "org_id": org_id,
+            }
+        }
         return cls._request("POST", "projects", json=project_dict)
 
     @classmethod
@@ -69,9 +75,14 @@ class NeonToolSuite(DBToolSuite):
         headers["Accept"] = "application/json"
         headers["Content-Type"] = "application/json"
 
-        r = requests.request(
-            method, NEON_API_BASE_URL + endpoint, headers=headers, **kwargs
-        )
+        params = kwargs.pop("params", {}) or {}
+        org_id = os.environ.get("NEON_ORG_ID", "")
+        if org_id and endpoint == "projects":
+            params["org_id"] = org_id
+
+        url = NEON_API_BASE_URL + endpoint
+
+        r = requests.request(method, url, headers=headers, params=params, **kwargs)
 
         r.raise_for_status()
 

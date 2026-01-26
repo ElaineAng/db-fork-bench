@@ -54,6 +54,7 @@ class DoltToolSuite(DBToolSuite):
         self._connection_uri = connection_uri
         self.autocommit = autocommit
 
+
     def get_uri_for_db_setup(self) -> str:
         """Returns the connection URI for database setup operations (e.g., psql)."""
         return self._connection_uri
@@ -69,13 +70,15 @@ class DoltToolSuite(DBToolSuite):
             print(f"Commit failed: {e}")
 
     def _create_branch_impl(self, branch_name: str, parent_id: str) -> None:
-        # TODO: Implement branch creation.
-        pass
+        cmd = f"SELECT dolt_branch('{branch_name}')"
+        super().execute_sql(cmd)
+        self._prepare_commit("new branch")
 
     def _connect_branch_impl(self, branch_name: str) -> None:
-        # TODO: Implement branch connection.
-        pass
+        cmd = f"SELECT dolt_checkout('{branch_name}')"
+        super().execute_sql(cmd)
 
     def _get_current_branch_impl(self) -> tuple[str, str]:
-        # TODO: Implement getting current branch.
-        pass
+        cmd = f"SELECT active_branch();"
+        res = super().execute_sql(cmd)
+        return (res[0][0], 0) if res else None # branch_id not implemented

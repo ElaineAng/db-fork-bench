@@ -1,8 +1,8 @@
 # Example benchmark task configuration
 # This configuration runs a mixed workload benchmark on Neon
 
-run_id: "benchmark_neon_001"
-backend: NEON
+run_id: "benchmark_pgsql_203_tpcc"
+backend: PGSQL
 
 # Operations to perform in the benchmark
 operations: READ
@@ -17,10 +17,10 @@ num_ops: 500
 table_name: "customer"
 
 # Starting branch (empty means default/main branch)
-starting_branch: ""
+starting_branch: "main"
 
 database_setup {
-  db_name: "microbench"
+  db_name: "tpcc_schema"
   cleanup: true
   
   # Create from SQL dump
