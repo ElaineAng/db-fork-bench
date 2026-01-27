@@ -156,6 +156,7 @@ class BenchmarkSuite:
                 raise ValueError(f"Unsupported backend: {self._config.backend}")
 
             self.db_tools = db_tools
+            print("BENCH current_database:", self.db_tools.execute_sql("SELECT current_database();")[0][0])
             return self
         except Exception as e:
             print(f"Error during BenchmarkSuite setup: {e}")
@@ -222,11 +223,18 @@ class BenchmarkSuite:
         # Setup the database and initialize the schema.
         if not self._require_db_setup:
             return
+        print("DB SETUP URI:", self.db_tools.get_uri_for_db_setup())
+        print("SQL FILE:", self._config.database_setup.sql_dump.sql_dump_path)
         # Pass connection URI for psql (supports psql meta-commands)
         load_sql_file(
             self.db_tools.get_uri_for_db_setup(),
             self._config.database_setup.sql_dump.sql_dump_path,
         )
+        print(self.db_tools.execute_sql("SELECT 1 FROM customer LIMIT 1;"))
+        print(self.db_tools.execute_sql("SELECT current_database();"))
+        print(self.db_tools.execute_sql("SELECT * FROM information_schema.tables WHERE table_name='customer';"))
+        if self._config.backend == tp.Backend.DOLT:
+            self.db_tools.commit_changes(message="Init")
 
     def maybe_branch_and_reconnect(
         self, next_bid, rnd, branch_limit_reached

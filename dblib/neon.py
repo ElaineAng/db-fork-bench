@@ -23,7 +23,7 @@ class NeonToolSuite(DBToolSuite):
 
     @classmethod
     def create_neon_project(cls, project_name: str) -> str:
-        project_dict = {"project": {"pg_version": 17, "name": project_name}}
+        project_dict = {"project": {"pg_version": 17, "name": project_name, "org_id": os.environ["NEON_ORG_ID"]}}
         # TODO: Handle project creation failures.
         return cls._request("POST", "projects", json=project_dict)
 
@@ -72,7 +72,8 @@ class NeonToolSuite(DBToolSuite):
         r = requests.request(
             method, NEON_API_BASE_URL + endpoint, headers=headers, **kwargs
         )
-
+        if not r.ok:
+            print("NEON ERROR:", r.status_code, r.text)
         r.raise_for_status()
 
         return r.json()
